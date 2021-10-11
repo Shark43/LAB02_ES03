@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #define MAXR    1000
@@ -19,11 +20,11 @@ typedef struct tratta {
 } Tratta;
 
 typedef struct table {
-    Tratta tratte[MAXR];
-    Tratta *tratteOrd1[MAXR];
-    Tratta *tratteOrd2[MAXR];
-    Tratta *tratteOrd3[MAXR];
-    Tratta *tratteOrd4[MAXR];
+    Tratta *tratte;
+    Tratta **tratteOrd1;
+    Tratta **tratteOrd2;
+    Tratta **tratteOrd3;
+    Tratta **tratteOrd4;
     int length;
 } Table;
 
@@ -47,6 +48,18 @@ void printAllDrawnOnFile(Tratta *tratte, int length);
 void findByDeparture(Tratta *tratte, int length, char toFind[STR]);
 int calculateMiddle(int first, int last);
 void printAllDrawnByPointers(Tratta **tratte, int length);
+Tratta *mallocArrayOfStruct(int length);
+Tratta **mallocArrayOfPointerToStruct(int length);
+void freeArrayOfPointerToStruct(Tratta **tratte);
+void freeArrayOfStruct(Tratta *tratte);
+
+void freeArrayOfPointerToStruct(Tratta **tratte) {
+    free(tratte);
+}
+
+void freeArrayOfStruct(Tratta *tratte) {
+    free(tratte);
+}
 
 Table readFile(char filename[]) {
     Table table;
@@ -58,6 +71,12 @@ Table readFile(char filename[]) {
     }
 
     fscanf(fpR, "%d", &table.length);
+
+    table.tratte = mallocArrayOfStruct(table.length);
+    table.tratteOrd1 = mallocArrayOfPointerToStruct(table.length);
+    table.tratteOrd2 = mallocArrayOfPointerToStruct(table.length);
+    table.tratteOrd3 = mallocArrayOfPointerToStruct(table.length);
+    table.tratteOrd4 = mallocArrayOfPointerToStruct(table.length);
 
     for (int i = 0; i < table.length; i++) {
         fscanf(fpR, "%s %s %s %s %s %s %d",
@@ -76,6 +95,14 @@ Table readFile(char filename[]) {
     }
     fclose(fpR);
     return table;
+}
+
+Tratta *mallocArrayOfStruct(int length) {
+    return malloc(sizeof(Tratta)*length);
+}
+
+Tratta **mallocArrayOfPointerToStruct(int length) {
+    return malloc(sizeof(Tratta *) * length);
 }
 
 int main( )
@@ -137,7 +164,11 @@ int main( )
 
                 break;
             case rFine:
-
+                freeArrayOfPointerToStruct(table.tratteOrd1);
+                freeArrayOfPointerToStruct(table.tratteOrd2);
+                freeArrayOfPointerToStruct(table.tratteOrd3);
+                freeArrayOfPointerToStruct(table.tratteOrd4);
+                freeArrayOfStruct(table.tratte);
                 continua = 0;
                 break;
             case rPartenza:
